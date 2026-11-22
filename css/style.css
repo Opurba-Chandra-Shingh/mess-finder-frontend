@@ -1,0 +1,46 @@
+/* Small custom styles. Almost everything else is Tailwind classes in the HTML. */
+
+body {
+    background-color: #E2E1EB;
+    color: #322D27;
+    font-family: 'Inter', 'Hind Siliguri', system-ui, sans-serif;
+}
+
+/* the focus ring is ochre everywhere */
+:focus-visible {
+    outline: 2px solid #BF8440;
+    outline-offset: 2px;
+}
+
+/* the grey block shown while data is loading (no shimmer, as planned) */
+.skeleton {
+    background-color: #d6d4df;
+    border-radius: 0.5rem;
+}
+
+/* a small spinner for buttons */
+.spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 9999px;
+    animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* the bottom tab bar of phones must not hide the end of the page */
+body.has-tab-bar {
+    padding-bottom: 4.5rem;
+}
+@media (min-width: 768px) {
+    body.has-tab-bar { padding-bottom: 0; }
+}
+
+/* while the drawer is open the page behind it does not scroll */
+body.no-scroll {
+    overflow: hidden;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Finder</title>
+
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="page">
+        <!-- A simple start page. The real home page (search, latest posts, top messes) comes in the next step. -->
+        <section class="mx-auto max-w-3xl px-4 py-20 text-center">
+            <h1 class="text-3xl font-semibold sm:text-4xl">Find a mess near your university</h1>
+            <p class="mt-3 text-ink-soft">Browse messes, chat with the manager and move in.</p>
+            <div class="mt-8 flex flex-wrap justify-center gap-3">
+                <a href="pages/browse.html" class="inline-flex h-11 items-center rounded-lg bg-espresso px-5 text-sm font-medium text-white hover:bg-espresso-hover">Browse messes</a>
+                <a href="pages/register.html" class="inline-flex h-11 items-center rounded-lg border border-line bg-white px-5 text-sm font-medium hover:bg-page">Create an account</a>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/layout.js"></script>
+    <script>
+        Layout.start({ active: 'home', title: 'Mess Finder' });
+    </script>
+</body>
+</html>
