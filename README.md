@@ -54,7 +54,7 @@ frontend/
 |   |-- tailwind-config.js  the colours of the theme (change them here)
 |   |-- api.js              every call to the backend
 |   |-- auth.js             who is logged in, page guards, where to go after login
-|   |-- components.js       toast, modal, confirm, badge, avatar, stars, pagination...
+|   |-- components.js       toast, modal, drawer, confirm, badge, avatar, stars, pagination...
 |   |-- layout.js           navbar, tab bar of phones, sidebar of manager and admin
 |   |-- mess-card.js        the mess card (Home, Browse, Interested)
 |   `-- (one js file for each page)
@@ -98,5 +98,6 @@ All colours are in `js/tailwind-config.js` (the theme is "Warm earth"). The page
 | Chat (live with Socket.io), Notifications, Profile | Done |
 | My mess, My visits, Complaints (student and manager) | Done |
 | Manager: Dashboard, Mess setup (mess info, rooms and seats) | Done |
-| Manager: Members, Room-wise seats, Posts, Interested students, Visit requests, Reviews | Planned |
+| Manager: Members (with payments), Room-wise seats | Done |
+| Manager: Posts, Interested students, Visit requests, Reviews | Planned |
 | Admin pages | Planned |

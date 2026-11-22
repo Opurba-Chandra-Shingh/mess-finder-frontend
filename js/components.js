@@ -246,6 +246,37 @@ const Ui = {
         return { element: overlay, close };
     },
 
+    // A panel that comes in from the right, for a bigger form or for details. Esc or a click outside closes it.
+    // The same as Ui.modal, only the shape is different. Returns { element, close }.
+    drawer({ title, bodyHtml, size = 'max-w-md' }) {
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 z-50 flex justify-end bg-espresso/60';
+        overlay.innerHTML = `
+            <aside class="h-full w-full ${size} overflow-y-auto bg-white p-5 shadow-lg" role="dialog" aria-modal="true">
+                <div class="mb-4 flex items-start justify-between gap-3">
+                    <h2 class="text-lg font-semibold">${Ui.escape(title)}</h2>
+                    <button type="button" data-close class="h-8 w-8 shrink-0 rounded-lg text-ink-soft hover:bg-page" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div data-drawer-body>${bodyHtml}</div>
+            </aside>`;
+
+        function close() {
+            document.removeEventListener('keydown', onKey);
+            document.body.classList.remove('no-scroll');
+            overlay.remove();
+        }
+        function onKey(event) {
+            if (event.key === 'Escape') close();
+        }
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay || event.target.closest('[data-close]')) close();
+        });
+        document.addEventListener('keydown', onKey);
+        document.body.classList.add('no-scroll');
+        document.body.appendChild(overlay);
+        return { element: overlay, close };
+    },
+
     // "Are you sure?" before something that cannot be undone. Gives true (confirmed) or false.
     // Usage:  if (await Ui.confirm({ title: 'Block user', message: '...', confirmText: 'Block', danger: true })) { ... }
     confirm({ title, message, confirmText = 'Confirm', danger = false }) {
