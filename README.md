@@ -97,5 +97,6 @@ All colours are in `js/tailwind-config.js` (the theme is "Warm earth"). The page
 | Newsfeed (with comments and the Interested button), Interested list | Done |
 | Chat (live with Socket.io), Notifications, Profile | Done |
 | My mess, My visits, Complaints (student and manager) | Done |
-| Manager pages | Planned |
+| Manager: Dashboard, Mess setup (mess info, rooms and seats) | Done |
+| Manager: Members, Room-wise seats, Posts, Interested students, Visit requests, Reviews | Planned |
 | Admin pages | Planned |
