@@ -33,7 +33,8 @@ async function sendRequest(method, path, body) {
 
     if (!response.ok) {
         // an old or blocked token: log out and ask for a new login
-        if (response.status === 401 && token) {
+        // (a wrong current password on the Profile page is also a 401, but the login is still good)
+        if (response.status === 401 && token && path !== '/auth/password') {
             Auth.logout('expired');
         }
         throw new ApiError(response.status, (data && data.error) || 'Something went wrong');
