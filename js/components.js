@@ -101,6 +101,32 @@ const Ui = {
         return `<span class="inline-flex items-center gap-0.5" aria-label="Rating ${value} of 5">${html}${text}${total}</span>`;
     },
 
+    // Five stars to click, for a form. The chosen number is read with picker.get().
+    // Pressing the chosen star again clears it (an optional rating can be left empty).
+    starPicker(container, label = 'Rating') {
+        let value = 0;
+        container.setAttribute('role', 'group');
+        container.setAttribute('aria-label', label);
+        container.innerHTML = [1, 2, 3, 4, 5]
+            .map((n) => `<button type="button" data-star="${n}" class="h-9 w-8 text-xl" aria-label="${n} of 5"><i class="fa-regular fa-star text-ochre"></i></button>`)
+            .join('');
+
+        function paint() {
+            container.querySelectorAll('[data-star]').forEach((button) => {
+                const on = Number(button.dataset.star) <= value;
+                button.querySelector('i').className = (on ? 'fa-solid' : 'fa-regular') + ' fa-star text-ochre';
+            });
+        }
+        container.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-star]');
+            if (!button) return;
+            const number = Number(button.dataset.star);
+            value = value === number ? 0 : number;
+            paint();
+        });
+        return { get: () => value, reset: () => { value = 0; paint(); } };
+    },
+
     // Shown when a list is empty: icon, one title, one sentence and (maybe) one button.
     empty({ icon = 'fa-regular fa-folder-open', title, text = '', buttonHtml = '' }) {
         return `

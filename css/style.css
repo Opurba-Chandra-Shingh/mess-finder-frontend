@@ -59,3 +59,11 @@ body.has-tab-bar {
 body.no-scroll {
     overflow: hidden;
 }
+
+/* a row that scrolls sideways (the section tabs) without showing the scroll bar */
+.hide-scrollbar {
+    scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}

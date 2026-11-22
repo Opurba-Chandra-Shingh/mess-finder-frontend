@@ -93,9 +93,8 @@ All colours are in `js/tailwind-config.js` (the theme is "Warm earth"). The page
 | Page | State |
 |---|---|
 | Login, Register | Done |
-| Home, Browse | Done |
-| Mess details | Next |
-| Newsfeed, Chat, Notifications, Profile | Planned |
+| Home, Browse, Mess details | Done |
+| Newsfeed, Chat, Notifications, Profile | Next |
 | Student pages (Interested, My mess, Visits, Complaints) | Planned |
 | Manager pages | Planned |
 | Admin pages | Planned |
