@@ -40,6 +40,21 @@ body.has-tab-bar {
     body.has-tab-bar { padding-bottom: 0; }
 }
 
+/* The filter panel of the Browse page: on phones it comes up from the bottom */
+@media (max-width: 1023px) {
+    #filters.open {
+        display: block;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        max-height: 85vh;
+        overflow-y: auto;
+        border-radius: 1rem 1rem 0 0;
+    }
+}
+
 /* while the drawer is open the page behind it does not scroll */
 body.no-scroll {
     overflow: hidden;

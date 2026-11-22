@@ -56,6 +56,7 @@ frontend/
 |   |-- auth.js             who is logged in, page guards, where to go after login
 |   |-- components.js       toast, modal, confirm, badge, avatar, stars, pagination...
 |   |-- layout.js           navbar, tab bar of phones, sidebar of manager and admin
+|   |-- mess-card.js        the mess card (Home, Browse, Interested)
 |   `-- (one js file for each page)
 `-- css/style.css           the few styles that Tailwind classes cannot do
 ```
@@ -92,7 +93,8 @@ All colours are in `js/tailwind-config.js` (the theme is "Warm earth"). The page
 | Page | State |
 |---|---|
 | Login, Register | Done |
-| Home, Browse, Mess details | Next |
+| Home, Browse | Done |
+| Mess details | Next |
 | Newsfeed, Chat, Notifications, Profile | Planned |
 | Student pages (Interested, My mess, Visits, Complaints) | Planned |
 | Manager pages | Planned |

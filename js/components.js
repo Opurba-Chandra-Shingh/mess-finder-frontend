@@ -260,6 +260,32 @@ const Ui = {
         });
     },
 
+    // ---------- lists for forms ----------
+
+    // One Font Awesome icon for each facility (a facility we do not know gets a check mark)
+    facilityIcon(name) {
+        const icons = {
+            'WiFi': 'fa-wifi',
+            'Gas supply': 'fa-fire-flame-simple',
+            'Generator backup': 'fa-bolt',
+            'Lift': 'fa-elevator',
+            'Filtered water': 'fa-droplet',
+            'CCTV': 'fa-video',
+            'Security guard': 'fa-shield-halved',
+            'Washing machine': 'fa-soap',
+            'Rooftop access': 'fa-sun',
+            'Study table': 'fa-book-open',
+        };
+        return icons[name] || 'fa-circle-check';
+    },
+
+    // Fills a <select> with options. labelOf(item) gives the text of an option.
+    fillSelect(select, items, valueKey, labelOf, firstLabel) {
+        select.innerHTML = `<option value="">${Ui.escape(firstLabel)}</option>` + items
+            .map((item) => `<option value="${item[valueKey]}">${Ui.escape(labelOf(item))}</option>`)
+            .join('');
+    },
+
     // ---------- pagination ----------
 
     // Fills the container with page numbers. onChange(page) is called when a number is pressed.
