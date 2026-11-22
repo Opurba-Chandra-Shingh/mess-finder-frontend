@@ -100,4 +100,4 @@ All colours are in `js/tailwind-config.js` (the theme is "Warm earth"). The page
 | Manager: Dashboard, Mess setup (mess info, rooms and seats) | Done |
 | Manager: Members (with payments), Room-wise seats | Done |
 | Manager: Posts, Interested students, Visit requests, Reviews | Done |
-| Admin pages | Planned |
+| Admin: Dashboard, Verification, Users, Complaints, Moderation, Reports (with Chart.js) | Done |

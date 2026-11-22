@@ -24,6 +24,17 @@ document.getElementById('toggle-password').addEventListener('click', () => {
     document.querySelector('#toggle-password i').className = show ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
 });
 
+// Quick login: a button fills the email and the password of a demo account and logs in.
+// All the demo accounts have the same password (see the README).
+const DEMO_PASSWORD = 'Demo@1234';
+document.querySelectorAll('[data-quick-email]').forEach((quickButton) => {
+    quickButton.addEventListener('click', () => {
+        form.elements.email.value = quickButton.dataset.quickEmail;
+        form.elements.password.value = DEMO_PASSWORD;
+        form.requestSubmit();
+    });
+});
+
 // Checks the form before it is sent. Gives true if everything is fine.
 function formIsValid() {
     Ui.clearFieldErrors(form);
