@@ -102,6 +102,18 @@
                                 <option value="">Loading...</option>
                             </select>
                             <p data-error-for="university_id" class="mt-1 text-xs text-red-600"></p>
+                            <button type="button" id="new-university-link" class="mt-1 text-xs font-medium text-link hover:underline">My university is not listed</button>
+
+                            <!-- a university that is not in the list: the student writes its name and chooses its area -->
+                            <div id="new-university-box" class="mt-1 hidden space-y-2 rounded-lg bg-page p-3">
+                                <input id="new_university_name" name="new_university_name" type="text" maxlength="150" placeholder="Full name of your university"
+                                    class="h-11 w-full rounded-lg border border-line bg-white px-3 text-sm placeholder:text-mute focus:border-ochre focus:outline-none focus:ring-2 focus:ring-ochre/40">
+                                <p data-error-for="new_university_name" class="text-xs text-red-600"></p>
+                                <select id="new_university_area" name="new_university_area"
+                                    class="h-11 w-full rounded-lg border border-line bg-white px-3 text-sm focus:border-ochre focus:outline-none focus:ring-2 focus:ring-ochre/40"></select>
+                                <p data-error-for="new_university_area" class="text-xs text-red-600"></p>
+                                <button type="button" id="new-university-cancel" class="text-xs font-medium text-link hover:underline">Choose from the list instead</button>
+                            </div>
                         </div>
                         <div>
                             <label for="gender" class="mb-1 block text-sm font-medium">Gender</label>
