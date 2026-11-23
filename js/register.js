@@ -38,28 +38,6 @@ document.querySelectorAll('[data-role]').forEach((tab) => {
 });
 showRole('student');
 
-// ---------- the list of universities ----------
-
-// the university is searched (there can be thousands), not listed
-Ui.picker(form.elements.university_id, { path: '/reference/universities', idKey: 'university_id', labelOf: (u) => u.short_name + ' - ' + u.name, anyLabel: 'Search your university' });
-
-// A student whose university is not in the list writes its name and chooses its area. The backend adds the
-// university (or uses the one with the same name) when the account is made.
-Ui.picker(form.elements.new_university_area, { path: '/reference/areas', idKey: 'area_id', labelOf: (a) => a.area_name, anyLabel: 'Area of your university' });
-let addingUniversity = false;
-
-function setAddingUniversity(adding) {
-    addingUniversity = adding;
-    document.getElementById('new-university-box').classList.toggle('hidden', !adding);
-    document.getElementById('new-university-link').classList.toggle('hidden', adding);
-    document.getElementById('university_id-search').parentElement.classList.toggle('hidden', adding);
-    form.elements.university_id.value = '';
-    Ui.clearFieldErrors(form);
-    if (adding) form.elements.new_university_name.focus();
-}
-document.getElementById('new-university-link').addEventListener('click', () => setAddingUniversity(true));
-document.getElementById('new-university-cancel').addEventListener('click', () => setAddingUniversity(false));
-
 // ---------- the eye button ----------
 
 document.getElementById('toggle-password').addEventListener('click', () => {
@@ -92,12 +70,8 @@ function formIsValid() {
     else if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) fail('password', 'The password needs a letter and a number');
 
     if (role === 'student') {
-        if (addingUniversity) {
-            if (value('new_university_name').length < 3) fail('new_university_name', 'Please write the full name of your university');
-            if (value('new_university_area') === '') fail('new_university_area', 'Please choose the area of your university');
-        } else if (value('university_id') === '') {
-            fail('university_id', 'Please select your university, or press "My university is not listed"');
-        }
+        if (value('university_name').length < 3) fail('university_name', 'Please write your university name');
+        if (value('area_name').length < 2) fail('area_name', 'Please write the area of your university');
         if (value('gender') === '') fail('gender', 'Please select your gender');
     } else if (!/^\d{10,17}$/.test(value('nid_no'))) {
         fail('nid_no', 'The NID number must be 10 to 17 digits');
@@ -133,8 +107,8 @@ form.addEventListener('submit', async (event) => {
         password: form.elements.password.value,
     };
     if (role === 'student') {
-        if (addingUniversity) body.new_university = { name: value('new_university_name'), area_id: Number(value('new_university_area')) };
-        else body.university_id = Number(value('university_id'));
+        body.university_name = value('university_name');
+        body.area_name = value('area_name');
         body.gender = value('gender');
         body.student_roll = value('student_roll');
         body.department = value('department');

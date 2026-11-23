@@ -96,24 +96,10 @@
                 <div id="student-fields" class="space-y-4">
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label for="university_id" class="mb-1 block text-sm font-medium">University</label>
-                            <select id="university_id" name="university_id"
-                                class="h-11 w-full rounded-lg border border-line bg-white px-3 text-sm focus:border-ochre focus:outline-none focus:ring-2 focus:ring-ochre/40">
-                                <option value="">Loading...</option>
-                            </select>
-                            <p data-error-for="university_id" class="mt-1 text-xs text-red-600"></p>
-                            <button type="button" id="new-university-link" class="mt-1 text-xs font-medium text-link hover:underline">My university is not listed</button>
-
-                            <!-- a university that is not in the list: the student writes its name and chooses its area -->
-                            <div id="new-university-box" class="mt-1 hidden space-y-2 rounded-lg bg-page p-3">
-                                <input id="new_university_name" name="new_university_name" type="text" maxlength="150" placeholder="Full name of your university"
-                                    class="h-11 w-full rounded-lg border border-line bg-white px-3 text-sm placeholder:text-mute focus:border-ochre focus:outline-none focus:ring-2 focus:ring-ochre/40">
-                                <p data-error-for="new_university_name" class="text-xs text-red-600"></p>
-                                <select id="new_university_area" name="new_university_area"
-                                    class="h-11 w-full rounded-lg border border-line bg-white px-3 text-sm focus:border-ochre focus:outline-none focus:ring-2 focus:ring-ochre/40"></select>
-                                <p data-error-for="new_university_area" class="text-xs text-red-600"></p>
-                                <button type="button" id="new-university-cancel" class="text-xs font-medium text-link hover:underline">Choose from the list instead</button>
-                            </div>
+                            <label for="university_name" class="mb-1 block text-sm font-medium">University</label>
+                            <input id="university_name" name="university_name" type="text" maxlength="150" autocomplete="organization" placeholder="Your university name"
+                                class="h-11 w-full rounded-lg border border-line bg-white px-3 text-sm placeholder:text-mute focus:border-ochre focus:outline-none focus:ring-2 focus:ring-ochre/40">
+                            <p data-error-for="university_name" class="mt-1 text-xs text-red-600"></p>
                         </div>
                         <div>
                             <label for="gender" class="mb-1 block text-sm font-medium">Gender</label>
@@ -126,6 +112,12 @@
                             <p class="mt-1 text-xs text-ink-soft">Boys and girls messes are separate, so this is needed.</p>
                             <p data-error-for="gender" class="mt-1 text-xs text-red-600"></p>
                         </div>
+                    </div>
+                    <div>
+                        <label for="area_name" class="mb-1 block text-sm font-medium">Area</label>
+                        <input id="area_name" name="area_name" type="text" maxlength="80" autocomplete="address-level3" placeholder="Area near your university"
+                            class="h-11 w-full rounded-lg border border-line bg-white px-3 text-sm placeholder:text-mute focus:border-ochre focus:outline-none focus:ring-2 focus:ring-ochre/40">
+                        <p data-error-for="area_name" class="mt-1 text-xs text-red-600"></p>
                     </div>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
