@@ -336,6 +336,115 @@ const Ui = {
         return icons[name] || 'fa-circle-check';
     },
 
+    // Makes a <select> that would have thousands of options searchable. The select stays in the form (hidden)
+    // and keeps the chosen id, so  form.elements.university_id.value  still works, also to set a value:
+    //     select.value = '3'      shows the name of university 3 (found with ?id=3)
+    // A search box is shown instead. Typing asks the backend (path?q=word&limit=8) and lists what it finds.
+    // Choosing sends a "change" event from the select, like a normal select does.
+    //     options: { path: '/reference/areas', idKey: 'area_id', labelOf: (area) => area.area_name, anyLabel: 'Any area' }
+    picker(select, { path, idKey, labelOf, anyLabel, limit = 8, wrapperClass = '' }) {
+        let currentId = '';
+        let currentLabel = '';
+        let lastSearch = 0;          // an old slow answer must not replace a newer one
+        let timer = null;
+        let found = [];
+
+        const wrapper = document.createElement('div');
+        wrapper.className = ('relative ' + wrapperClass).trim();
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.autocomplete = 'off';
+        if (select.id) input.id = select.id + '-search';
+        input.className = select.className;
+        input.placeholder = anyLabel;
+        input.setAttribute('aria-label', anyLabel);
+        const panel = document.createElement('div');
+        panel.className = 'absolute left-0 right-0 z-30 mt-1 hidden max-h-60 overflow-y-auto rounded-lg border border-line bg-white py-1 text-sm shadow-lg';
+        wrapper.append(input, panel);
+
+        // the select is hidden, its label now belongs to the search box
+        select.hidden = true;
+        select.insertAdjacentElement('afterend', wrapper);
+        const label = select.id ? document.querySelector(`label[for="${select.id}"]`) : null;
+        if (label && input.id) label.setAttribute('for', input.id);
+
+        function close() {
+            panel.classList.add('hidden');
+            input.value = currentLabel;          // a word that was typed but not chosen is dropped
+        }
+
+        function showList(items) {
+            found = items;
+            const any = currentId !== '' ? `<button type="button" data-pick="" class="block w-full px-3 py-2 text-left text-ink-soft hover:bg-page">${Ui.escape(anyLabel)}</button>` : '';
+            const rows = items.map((item, index) => `<button type="button" data-pick="${index}" class="block w-full truncate px-3 py-2 text-left hover:bg-page">${Ui.escape(labelOf(item))}</button>`).join('');
+            const hint = items.length >= limit ? '<p class="px-3 py-1.5 text-xs text-ink-soft">Type more letters to find others.</p>' : '';
+            panel.innerHTML = any + rows + hint || '<p class="px-3 py-2 text-ink-soft">Nothing found.</p>';
+            if (items.length === 0 && any) panel.insertAdjacentHTML('beforeend', '<p class="px-3 py-2 text-ink-soft">Nothing found.</p>');
+            panel.classList.remove('hidden');
+        }
+
+        async function search(word) {
+            const thisSearch = ++lastSearch;
+            try {
+                const items = await Api.get(path, { q: word, limit });
+                if (thisSearch === lastSearch) showList(items);
+            } catch (error) {
+                if (thisSearch === lastSearch) panel.innerHTML = '<p class="px-3 py-2 text-red-700">Could not load the list.</p>';
+            }
+        }
+
+        function choose(item) {
+            currentId = item ? String(item[idKey]) : '';
+            currentLabel = item ? labelOf(item) : '';
+            input.value = currentLabel;
+            panel.classList.add('hidden');
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        input.addEventListener('focus', () => { input.select(); search(''); });
+        input.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => search(input.value.trim()), 250);      // wait a little after the last key
+        });
+        input.addEventListener('change', (event) => event.stopPropagation());   // typing is not a choice
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') { close(); input.blur(); }
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (!panel.classList.contains('hidden') && found.length > 0) choose(found[0]);
+            }
+        });
+        panel.addEventListener('mousedown', (event) => event.preventDefault());    // the box keeps the focus
+        panel.addEventListener('click', (event) => {
+            const pick = event.target.closest('[data-pick]');
+            if (pick) choose(pick.dataset.pick === '' ? null : found[Number(pick.dataset.pick)]);
+        });
+        document.addEventListener('click', (event) => {
+            if (!wrapper.contains(event.target) && !panel.classList.contains('hidden')) close();
+        });
+
+        // select.value = '3' and form.reset() work like they do for a normal select
+        Object.defineProperty(select, 'value', {
+            get: () => currentId,
+            set: (value) => {
+                const next = String(value === null || value === undefined ? '' : value);
+                if (next === currentId && (next === '' || currentLabel !== '')) return;     // nothing changes
+                currentId = next;
+                currentLabel = '';
+                input.value = '';
+                if (currentId === '') return;
+                const wanted = currentId;
+                Api.get(path, { id: wanted }).then((items) => {
+                    if (currentId === wanted && items.length > 0) {
+                        currentLabel = labelOf(items[0]);
+                        input.value = currentLabel;
+                    }
+                }).catch(() => { /* the id stays, only its name is missing */ });
+            },
+        });
+        if (select.form) select.form.addEventListener('reset', () => { select.value = ''; });
+    },
+
     // Fills a <select> with options. labelOf(item) gives the text of an option.
     fillSelect(select, items, valueKey, labelOf, firstLabel) {
         select.innerHTML = `<option value="">${Ui.escape(firstLabel)}</option>` + items

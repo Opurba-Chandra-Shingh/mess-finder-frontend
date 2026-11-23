@@ -10,8 +10,9 @@ const pageBox = document.getElementById('admin-page');
 const primaryButton = 'h-10 rounded-lg bg-espresso px-4 text-sm font-medium text-white hover:bg-espresso-hover disabled:cursor-not-allowed disabled:opacity-60';
 const dangerButton = 'h-10 rounded-lg border border-red-200 bg-white px-4 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-60';
 
-let pending = null;           // the answer of GET /admin/pending
+let pending = null;           // the answer of GET /admin/pending: { managers: {data, total...}, messes: {data, total...} }
 let currentTab = 'managers';
+const pages = { managers: 1, messes: 1 };      // the page of each list
 
 // ---------- the cards ----------
 
@@ -80,7 +81,7 @@ function render() {
         const on = key === currentTab;
         return `<button type="button" data-tab="${key}" role="tab" class="h-11 shrink-0 border-b-2 px-4 text-sm font-medium ${on ? 'border-ochre text-ink' : 'border-transparent text-ink-soft'}">${label} ${Ui.badge(count, count > 0 ? 'amber' : 'slate')}</button>`;
     };
-    const items = pending[currentTab];
+    const items = pending[currentTab].data;
     const cards = items.length === 0
         ? Ui.empty({
             icon: 'fa-regular fa-circle-check',
@@ -95,15 +96,23 @@ function render() {
             <p class="text-sm text-ink-soft">A mess is shown to students only after its manager and the mess are both verified.</p>
         </div>
         <div class="hide-scrollbar flex gap-1 overflow-x-auto border-b border-line" role="tablist">
-            ${tab('managers', 'Managers', pending.managers.length)}${tab('messes', 'Messes', pending.messes.length)}
+            ${tab('managers', 'Managers', pending.managers.total)}${tab('messes', 'Messes', pending.messes.total)}
         </div>
-        ${cards}`;
+        ${cards}
+        <div id="pagination"></div>`;
+    Ui.renderPagination(document.getElementById('pagination'), pending[currentTab].page, pending[currentTab].total_pages, (page) => {
+        pages[currentTab] = page;
+        loadPending();
+    });
 }
 
 async function loadPending() {
     pageBox.innerHTML = Ui.skeleton(3, 'h-32');
     try {
-        pending = await Api.get('/admin/pending');
+        pending = await Api.get('/admin/pending', { managers_page: pages.managers, messes_page: pages.messes, limit: 12 });
+        // a page that is gone after an answer (the last card was approved): go to the last page that exists
+        if (pending.managers.data.length === 0 && pages.managers > 1) { pages.managers = Math.max(1, pending.managers.total_pages); loadPending(); return; }
+        if (pending.messes.data.length === 0 && pages.messes > 1) { pages.messes = Math.max(1, pending.messes.total_pages); loadPending(); return; }
         render();
     } catch (error) {
         pageBox.innerHTML = '';

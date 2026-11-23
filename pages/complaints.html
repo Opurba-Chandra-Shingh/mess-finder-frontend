@@ -9,17 +9,18 @@
     <script src="../js/tailwind-config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Inter:wght@400;500;600&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <div id="page">
-        <div class="mx-auto max-w-3xl space-y-4">
+        <div class="mx-auto max-w-[88rem] space-y-4">
             <h1 class="text-xl font-semibold">Complaints</h1>
 
+            <div class="grid gap-6 lg:grid-cols-5 lg:items-start">
             <!-- the form (its "about" part depends on the role, filled by js/complaints.js) -->
-            <section class="rounded-xl border border-line bg-white p-5">
+            <section class="rounded-xl border border-line bg-white p-5 lg:col-span-2">
                 <h2 class="font-semibold">New complaint</h2>
                 <p class="mt-1 text-sm text-ink-soft">Tell the admin about a problem. The admin reads every complaint and writes back here.</p>
 
@@ -47,10 +48,11 @@
                 </form>
             </section>
 
-            <section>
+            <section class="lg:col-span-3">
                 <h2 class="mb-3 font-semibold">My complaints</h2>
                 <div id="list" class="space-y-3"></div>
             </section>
+            </div>
         </div>
     </div>
 

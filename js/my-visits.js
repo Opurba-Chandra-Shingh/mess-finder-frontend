@@ -39,7 +39,7 @@ async function loadList() {
             });
             return;
         }
-        list.innerHTML = visits.map(visitHtml).join('');
+        list.innerHTML = '<div class="grid gap-3 lg:grid-cols-2 lg:items-start">' + visits.map(visitHtml).join('') + '</div>';
     } catch (error) {
         list.innerHTML = '';
         list.appendChild(Ui.errorBanner(error.message, loadList));

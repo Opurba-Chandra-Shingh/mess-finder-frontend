@@ -40,20 +40,8 @@ showRole('student');
 
 // ---------- the list of universities ----------
 
-async function loadUniversities() {
-    const select = form.elements.university_id;
-    try {
-        const universities = await Api.get('/reference/universities');
-        select.innerHTML = '<option value="">Select your university</option>' + universities
-            .map((u) => `<option value="${u.university_id}">${Ui.escape(u.short_name)} - ${Ui.escape(u.name)}</option>`)
-            .join('');
-    } catch (error) {
-        select.innerHTML = '<option value="">Could not load the list</option>';
-        message.textContent = error.message;
-        message.classList.remove('hidden');
-    }
-}
-loadUniversities();
+// the university is searched (there can be thousands), not listed
+Ui.picker(form.elements.university_id, { path: '/reference/universities', idKey: 'university_id', labelOf: (u) => u.short_name + ' - ' + u.name, anyLabel: 'Search your university' });
 
 // ---------- the eye button ----------
 

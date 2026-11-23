@@ -97,7 +97,7 @@ const Layout = {
         const header = document.createElement('header');
         header.className = 'sticky top-0 z-40 bg-espresso text-white';
         header.innerHTML = `
-            <div class="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
+            <div class="mx-auto flex h-14 max-w-[88rem] items-center gap-4 px-4">
                 <a href="${SITE_ROOT}index.html" class="flex items-center gap-2 text-lg font-semibold">
                     <i class="fa-solid fa-house-chimney-window text-ochre"></i> Mess Finder
                 </a>
@@ -106,8 +106,8 @@ const Layout = {
             </div>`;
 
         // the content gets a container of the right width
-        page.classList.add('mx-auto', 'w-full', 'max-w-7xl', 'flex-1', 'px-4', 'py-6');
-        if (active === 'home') page.classList.remove('max-w-7xl', 'px-4', 'py-6');
+        page.classList.add('mx-auto', 'w-full', 'max-w-[88rem]', 'flex-1', 'px-4', 'py-6');
+        if (active === 'home') page.classList.remove('max-w-[88rem]', 'px-4', 'py-6');
 
         // a short page still pushes the footer to the bottom of the window
         document.body.classList.add('flex', 'min-h-screen', 'flex-col');

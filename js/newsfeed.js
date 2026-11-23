@@ -394,12 +394,10 @@ function readAddress() {
 function showFilters() {
     document.querySelectorAll('#type-chips [data-type]').forEach((chip) => {
         const on = chip.dataset.type === filters.type;
-        chip.classList.toggle('border-espresso', on);
-        chip.classList.toggle('bg-espresso', on);
-        chip.classList.toggle('text-white', on);
-        chip.classList.toggle('border-line', !on);
-        chip.classList.toggle('bg-white', !on);
-        chip.classList.toggle('hover:bg-page', !on);
+        chip.classList.toggle('border-ochre', on);
+        chip.classList.toggle('text-ink', on);
+        chip.classList.toggle('border-transparent', !on);
+        chip.classList.toggle('text-ink-soft', !on);
     });
     areaSelect.value = filters.area_id;
     messTypeSelect.value = filters.mess_type;
@@ -488,39 +486,26 @@ openCheckbox.addEventListener('change', filterChanged);
 function renderComposer() {
     if (isStudent) {
         composerBox.innerHTML = `
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h2 class="font-semibold">Looking for a seat?</h2>
-                    <p class="text-sm text-ink-soft">Share what you need and managers will answer.</p>
-                </div>
-                <div class="flex gap-2">
-                    <button type="button" id="open-wanted-form" class="${primaryClass}"><i class="fa-solid fa-pen"></i> Post a seat wanted</button>
-                    <button type="button" id="open-my-posts" class="${secondaryClass}">My posts</button>
-                </div>
+            <div class="flex items-center gap-2">
+                ${Ui.avatar(user.full_name, 'h-8 w-8 text-xs')}
+                <input id="open-wanted-form" type="text" readonly placeholder="Need a seat? Write..." aria-label="Post a seat wanted"
+                    class="h-9 min-w-0 flex-1 cursor-pointer rounded-lg border border-line bg-page px-3 text-sm placeholder:text-ink-soft hover:border-ochre focus:outline-none focus:ring-2 focus:ring-ochre/40">
+            </div>
+            <div class="mt-2 flex items-center justify-between text-xs text-ink-soft">
+                <span>Share what you need</span>
+                <button type="button" id="open-my-posts" class="font-medium text-link hover:underline">My posts</button>
             </div>
             ${wantedFormHtml()}`;
         activateWantedForm();
     } else if (isManager) {
         composerBox.innerHTML = `
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h2 class="font-semibold">Have free seats?</h2>
-                    <p class="text-sm text-ink-soft">Tell the students about them with a vacancy post.</p>
-                </div>
-                <a href="${SITE_ROOT}pages/manager/posts.html" class="${primaryClass}"><i class="fa-solid fa-bullhorn"></i> Post a vacancy</a>
+            <div class="flex items-center gap-2">
+                ${Ui.avatar(user.full_name, 'h-8 w-8 text-xs')}
+                <a href="${SITE_ROOT}pages/manager/posts.html?new=1" class="flex h-9 min-w-0 flex-1 items-center rounded-lg border border-line bg-page px-3 text-sm text-ink-soft hover:border-ochre">Have free seats? Post a vacancy...</a>
             </div>`;
     } else if (!user) {
         composerBox.innerHTML = `
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h2 class="font-semibold">Looking for a seat?</h2>
-                    <p class="text-sm text-ink-soft">Login to post what you need, to comment and to mark a mess as interested.</p>
-                </div>
-                <div class="flex gap-2">
-                    <a href="${loginUrl()}" class="${primaryClass}">Login</a>
-                    <a href="${SITE_ROOT}pages/register.html" class="${secondaryClass}">Register</a>
-                </div>
-            </div>`;
+            <p class="text-sm"><a href="${loginUrl()}" class="font-medium text-link hover:underline">Login</a> to post what you need, to comment and to mark a mess as interested.</p>`;
     } else {
         composerBox.remove();       // the admin only reads the feed
     }
@@ -531,7 +516,7 @@ function renderComposer() {
 function wantedFormHtml() {
     const errorLine = (name) => `<p data-error-for="${name}" class="mt-1 text-xs text-red-700"></p>`;
     return `
-        <form id="wanted-form" class="mt-4 hidden space-y-4 border-t border-line pt-4" novalidate>
+        <form id="wanted-form" class="hidden space-y-4" novalidate>
             <div>
                 <label for="wanted-title" class="mb-1 block text-sm font-medium">Title</label>
                 <input id="wanted-title" name="title" type="text" maxlength="150" placeholder="For example: Need a seat near Dhaka University from January"
@@ -591,11 +576,27 @@ function activateWantedForm() {
     const form = document.getElementById('wanted-form');
     const errorLine = document.getElementById('wanted-error');
 
+    let box = null;
     const setOpen = (open) => {
-        form.classList.toggle('hidden', !open);
-        if (open) form.elements.title.focus();
+        if (open && !box) {
+            box = Ui.modal({ title: 'Post a seat wanted', bodyHtml: '', size: 'max-w-lg' });
+            box.element.querySelector('[data-modal-body]').appendChild(form);
+            form.classList.remove('hidden');
+            form.elements.title.focus();
+            // when the box is closed (also with Esc) the form goes back to its place
+            const watcher = new MutationObserver(() => {
+                if (document.body.contains(box.element)) return;
+                watcher.disconnect();
+                composerBox.appendChild(form);
+                form.classList.add('hidden');
+                box = null;
+            });
+            watcher.observe(document.body, { childList: true });
+        } else if (!open && box) {
+            box.close();
+        }
     };
-    document.getElementById('open-wanted-form').addEventListener('click', () => setOpen(form.classList.contains('hidden')));
+    document.getElementById('open-wanted-form').addEventListener('click', () => setOpen(true));
     document.getElementById('cancel-wanted').addEventListener('click', () => setOpen(false));
     document.getElementById('open-my-posts').addEventListener('click', openMyPosts);
 
@@ -706,35 +707,90 @@ async function loadSideList() {
     }
 }
 
+// ---------- the right box: the best rated messes (everybody) ----------
+
+async function loadTopList() {
+    const box = document.getElementById('top-list');
+    try {
+        const result = await Api.get('/messes', { sort: 'rating', limit: 4 });
+        box.innerHTML = result.data.length === 0
+            ? '<p class="text-sm text-ink-soft">No mess has a review yet.</p>'
+            : result.data.map((mess) => `
+                <a href="${SITE_ROOT}pages/mess-details.html?id=${mess.mess_id}" class="block rounded-lg px-2 py-2 hover:bg-page">
+                    <p class="truncate text-sm font-medium">${Ui.escape(mess.mess_name)}</p>
+                    <p class="flex items-center gap-2 text-xs text-ink-soft">${Ui.stars(Number(mess.avg_rating), mess.review_count)}<span class="truncate">${Ui.escape(mess.area_name)}</span></p>
+                </a>`).join('')
+              + `<a href="${SITE_ROOT}pages/browse.html" class="mt-2 block px-2 text-sm font-medium text-link hover:underline">Browse all</a>`;
+    } catch (error) {
+        box.innerHTML = '<p class="text-sm text-red-700">Could not load the list.</p>';
+    }
+}
+
+// ---------- the left box: who you are and where you can go ----------
+
+function renderLeftBox() {
+    const link = (icon, label, page) => `
+        <a href="${SITE_ROOT}pages/${page}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-page">
+            <i class="fa-solid ${icon} w-5 text-center text-ochre"></i>${label}
+        </a>`;
+
+    if (!user) {
+        document.getElementById('left').innerHTML = `
+            <section class="rounded-xl border border-line bg-white p-4">
+                <h2 class="font-semibold">Join Mess Finder</h2>
+                <p class="mt-1 text-sm text-ink-soft">Login to comment, to post and to chat with managers.</p>
+                <a href="${loginUrl()}" class="mt-3 flex h-10 items-center justify-center rounded-lg bg-espresso text-sm font-medium text-white hover:bg-espresso-hover">Login</a>
+                <a href="${SITE_ROOT}pages/register.html" class="mt-2 flex h-10 items-center justify-center rounded-lg border border-line bg-white text-sm font-medium hover:bg-page">Create an account</a>
+            </section>`;
+        return;
+    }
+
+    const links = isStudent
+        ? link('fa-house', 'My mess', 'my-mess.html') + link('fa-heart', 'Interested', 'interested.html')
+            + link('fa-calendar-check', 'My visits', 'my-visits.html') + link('fa-flag', 'Complaints', 'complaints.html')
+        : link('fa-gauge', 'Dashboard', 'manager/dashboard.html') + link('fa-bullhorn', 'My posts', 'manager/posts.html')
+            + link('fa-heart', 'Interested students', 'manager/interested.html') + link('fa-calendar-check', 'Visit requests', 'manager/visits.html');
+
+    document.getElementById('left').innerHTML = `
+        <section class="rounded-xl border border-line bg-white p-4 text-center">
+            <div class="flex justify-center">${Ui.avatar(user.full_name, 'h-16 w-16 text-xl')}</div>
+            <p class="mt-3 truncate font-semibold">${Ui.escape(user.full_name)}</p>
+            <p class="truncate text-xs text-ink-soft">${Ui.escape(user.email)}</p>
+            <div class="mt-2">${Ui.badge(user.role.charAt(0).toUpperCase() + user.role.slice(1), 'ochre')}</div>
+        </section>
+        <nav class="mt-2 rounded-xl border border-line bg-white p-2">${links}</nav>`;
+}
+
 // ---------- the lists for the filter and the form ----------
 
-async function loadLists() {
-    try {
-        const [areas, universities] = await Promise.all([
-            Api.get('/reference/areas'),
-            isStudent ? Api.get('/reference/universities') : Promise.resolve([]),
-        ]);
-        Ui.fillSelect(areaSelect, areas, 'area_id', (a) => a.area_name, 'Any area');
-        areaSelect.value = filters.area_id;     // the address may have chosen an area
-        if (isStudent) {
-            Ui.fillSelect(document.getElementById('wanted-area'), areas, 'area_id', (a) => a.area_name, 'Any area');
-            Ui.fillSelect(document.getElementById('wanted-university'), universities, 'university_id', (u) => u.short_name, 'Any university');
-        }
-    } catch (error) {
-        // the filter and the form still work without the lists
+// there can be thousands of areas and universities, so they are searched, not listed
+function loadLists() {
+    Ui.picker(areaSelect, { path: '/reference/areas', idKey: 'area_id', labelOf: (a) => a.area_name, anyLabel: 'Any area' });
+    areaSelect.value = filters.area_id;     // the address may have chosen an area
+    if (isStudent) {
+        Ui.picker(document.getElementById('wanted-area'), { path: '/reference/areas', idKey: 'area_id', labelOf: (a) => a.area_name, anyLabel: 'Any area' });
+        Ui.picker(document.getElementById('wanted-university'), { path: '/reference/universities', idKey: 'university_id', labelOf: (u) => u.short_name, anyLabel: 'Any university' });
     }
 }
 
 // ---------- start ----------
 
 renderComposer();
-if (isStudent) {
-    // the layout of a student has the side box
-    document.getElementById('layout').classList.add('lg:max-w-4xl', 'lg:grid', 'lg:grid-cols-[minmax(0,1fr)_16rem]', 'lg:gap-6');
-    loadSideList();
-} else {
-    document.getElementById('side').remove();
+renderLeftBox();
+
+// the "write a post" card sits in the left box on wide screens, on top of the feed on smaller screens
+const wideScreen = window.matchMedia('(min-width: 1280px)');
+function placeComposer() {
+    if (!document.body.contains(composerBox)) return;
+    if (wideScreen.matches) document.getElementById('left').appendChild(composerBox);
+    else document.getElementById('center').prepend(composerBox);
+    composerBox.classList.toggle('mt-2', wideScreen.matches);
 }
+placeComposer();
+wideScreen.addEventListener('change', placeComposer);
+if (isStudent) loadSideList();
+else document.getElementById('side-interested').remove();
+loadTopList();
 
 readAddress();
 loadLists();

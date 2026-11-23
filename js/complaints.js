@@ -21,22 +21,86 @@ let foundStudents = [];          // manager only: the result of the last search
 
 // ---------- the "about" part of the form ----------
 
+// The student searches the mess by its name (there can be thousands of messes, so no long list).
+// The chosen mess is kept in a hidden field named mess_id, the rest of the form reads it from there.
 function renderAboutForStudent() {
     aboutBox.innerHTML = `
-        <label for="mess_id" class="mb-1 block text-sm font-medium">Which mess is it about?</label>
-        <select id="mess_id" name="mess_id" class="${inputClass}"><option value="">Loading...</option></select>
+        <span class="mb-1 block text-sm font-medium">Which mess is it about?</span>
+        <input type="hidden" name="mess_id" value="">
+        <div id="mess-chosen"></div>
+        <div id="mess-search">
+            <input id="mess-query" type="search" autocomplete="off" placeholder="Type the name of the mess" aria-label="Search a mess" class="${inputClass}">
+            <div id="mess-results" class="mt-2 space-y-1"></div>
+        </div>
         <p data-error-for="mess_id" class="mt-1 text-xs text-red-600"></p>`;
-    loadMesses();
-}
 
-async function loadMesses() {
-    const select = form.elements.mess_id;
-    try {
-        const answer = await Api.get('/messes', { limit: 50 });
-        Ui.fillSelect(select, answer.data, 'mess_id', (mess) => `${mess.mess_name} (${mess.area_name})`, 'Choose a mess');
-        select.value = new URLSearchParams(location.search).get('mess_id') || '';     // chosen by the address
-    } catch (error) {
-        select.innerHTML = '<option value="">Could not load the list</option>';
+    const hidden = form.elements.mess_id;
+    const chosenBox = document.getElementById('mess-chosen');
+    const searchBox = document.getElementById('mess-search');
+    const queryBox = document.getElementById('mess-query');
+    const resultsBox = document.getElementById('mess-results');
+    let found = [];                  // the result of the last search
+    let timer = null;
+    let lastSearch = 0;              // an old slow answer must not replace a newer one
+
+    // shows the chosen mess (with a Remove button), or the search box when nothing is chosen
+    function showChosen(mess) {
+        hidden.value = mess ? mess.mess_id : '';
+        resultsBox.innerHTML = '';
+        searchBox.classList.toggle('hidden', Boolean(mess));
+        chosenBox.innerHTML = mess ? `
+            <div class="flex items-center justify-between gap-2 rounded-lg bg-ochre-soft px-3 py-2 text-sm">
+                <span class="min-w-0 truncate"><i class="fa-solid fa-building mr-2 text-ochre"></i>${Ui.escape(mess.mess_name)} <span class="text-ink-soft">${Ui.escape(mess.area_name)}</span></span>
+                <button type="button" id="mess-remove" class="shrink-0 text-sm font-medium text-link hover:underline">Change</button>
+            </div>` : '';
+        if (!mess) queryBox.focus();
+    }
+
+    async function search() {
+        const word = queryBox.value.trim();
+        const thisSearch = ++lastSearch;
+        if (word.length < 2) {
+            resultsBox.innerHTML = word.length === 0 ? '' : '<p class="text-sm text-ink-soft">Type at least 2 letters.</p>';
+            return;
+        }
+        resultsBox.innerHTML = Ui.skeleton(1, 'h-10');
+        try {
+            const answer = await Api.get('/messes', { q: word, limit: 8 });
+            if (thisSearch !== lastSearch) return;
+            found = answer.data;
+            resultsBox.innerHTML = found.length === 0
+                ? '<p class="text-sm text-ink-soft">No mess found. Try another word.</p>'
+                : found.map((mess) => `
+                    <button type="button" data-mess-id="${mess.mess_id}" class="flex w-full items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-left text-sm hover:bg-page">
+                        <span class="min-w-0 truncate font-medium">${Ui.escape(mess.mess_name)}</span>
+                        <span class="shrink-0 text-xs text-ink-soft">${Ui.escape(mess.area_name)}</span>
+                    </button>`).join('');
+        } catch (error) {
+            if (thisSearch === lastSearch) resultsBox.innerHTML = `<p class="text-sm text-red-700">${Ui.escape(error.message)}</p>`;
+        }
+    }
+
+    queryBox.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(search, 300);       // wait a little after the last key
+    });
+    queryBox.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') event.preventDefault();      // Enter must not send the complaint
+    });
+    resultsBox.addEventListener('click', (event) => {
+        const pick = event.target.closest('[data-mess-id]');
+        if (pick) showChosen(found.find((mess) => String(mess.mess_id) === pick.dataset.messId));
+    });
+    chosenBox.addEventListener('click', (event) => {
+        if (event.target.closest('#mess-remove')) showChosen(null);
+    });
+
+    // a mess can be chosen with the address too:  complaints.html?mess_id=3
+    const idFromAddress = new URLSearchParams(location.search).get('mess_id');
+    if (idFromAddress) {
+        Api.get('/messes/' + encodeURIComponent(idFromAddress))
+            .then((mess) => showChosen({ mess_id: mess.mess_id, mess_name: mess.mess_name, area_name: mess.area_name }))
+            .catch(() => { /* a wrong id in the address: the student just searches */ });
     }
 }
 

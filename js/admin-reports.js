@@ -24,7 +24,7 @@ function moneyCardHtml(icon, label, value) {
 
 function chartCardHtml(title, note, canvasId, height) {
     return `
-        <section class="rounded-xl border border-line bg-white p-4 shadow-sm">
+        <section class="min-w-0 rounded-xl border border-line bg-white p-4 shadow-sm">
             <h2 class="text-sm font-semibold">${title}</h2>
             <p class="mb-3 text-xs text-ink-soft">${note}</p>
             <div class="relative" style="height: ${height}px"><canvas id="${canvasId}"></canvas></div>
@@ -136,7 +136,7 @@ async function loadReports() {
             </div>
             <div class="grid gap-4 lg:grid-cols-2">
                 ${chartCardHtml('Messes and free seats by area', 'Verified messes and the seats that are free now.', 'area-chart', areaHeight)}
-                <div class="space-y-4">
+                <div class="min-w-0 space-y-4">
                     ${chartCardHtml('New members each month', 'The last 12 months.', 'member-chart', 240)}
                     ${topRatedHtml(data.top_rated)}
                 </div>

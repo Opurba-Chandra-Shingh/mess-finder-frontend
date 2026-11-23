@@ -39,6 +39,7 @@ All demo accounts use the password `Demo@1234`.
 | Manager | `abdur.rahman@example.com` |
 | Admin | `admin@example.com` |
 
+The login page has three **Quick login** buttons (Student, Manager, Admin) that fill in these accounts and log in.
 More accounts are listed in `backend/database/README.md`.
 
 ## Folder structure
@@ -54,7 +55,7 @@ frontend/
 |   |-- tailwind-config.js  the colours of the theme (change them here)
 |   |-- api.js              every call to the backend
 |   |-- auth.js             who is logged in, page guards, where to go after login
-|   |-- components.js       toast, modal, drawer, confirm, badge, avatar, stars, pagination...
+|   |-- components.js       toast, modal, drawer, confirm, badge, avatar, stars, pagination, search picker...
 |   |-- layout.js           navbar, tab bar of phones, sidebar of manager and admin
 |   |-- mess-card.js        the mess card (Home, Browse, Interested)
 |   `-- (one js file for each page)
@@ -87,6 +88,29 @@ A visitor is sent to the login page and comes back after login. A user with a wr
 
 All colours are in `js/tailwind-config.js` (the theme is "Warm earth"). The page uses names like
 `bg-espresso`, `text-ink-soft`, `border-line`, so changing a value there changes the whole website.
+
+## Big lists: pages and search boxes
+
+The database can hold thousands of users, messes and posts, so no page loads a whole table:
+
+- Every long list is shown in **pages** (`Ui.renderPagination`): Browse, Newsfeed, Notifications, Members, Interested
+  students, Visit requests, Posts, Reviews, and the admin lists (Verification, Users, Complaints, Moderation).
+- Lists of areas and universities (filters, forms) and the mess of a complaint are **search boxes**
+  (`Ui.picker` in `js/components.js`): type a few letters, the backend answers with the first matches.
+
+## Look and feel
+
+- Light page colour that melts into the white cards, small text on laptops (14px base, 16px on phones),
+  headings in Outfit and the rest in Inter (Hind Siliguri for Bangla).
+- Laptop layouts use two or three columns (Newsfeed, Profile, Complaints, My mess, Mess setup, Reviews).
+  On phones every page is one column, tables scroll sideways, the sidebar becomes a drawer.
+- Filters that choose one thing (All, Paid, Overdue...) are plain text with a line under the chosen one.
+
+## A short tour for the demo
+
+1. **Student:** Quick login as Student, search a mess on Browse, open it, press Interested, write on the Newsfeed.
+2. **Manager:** Quick login as Manager, look at the Dashboard, add a member to a free seat, record a payment.
+3. **Admin:** Quick login as Admin, approve a new manager and mess on Verification, open Reports.
 
 ## Pages
 

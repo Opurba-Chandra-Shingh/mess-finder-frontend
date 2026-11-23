@@ -30,6 +30,39 @@ function statusBannerHtml(status) {
     return '';
 }
 
+// One short sentence with an icon ("Your daily insights" strip on top of the page)
+function insightHtml(icon, text) {
+    return `
+        <div class="flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 shadow-sm">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ochre-soft text-ochre"><i class="fa-solid ${icon}"></i></span>
+            <p class="text-sm">${text}</p>
+        </div>`;
+}
+
+function insightsHtml(stats, activity, unreadChats) {
+    const total = Number(stats.total_seats) || 0;
+    const free = Number(stats.free_seats) || 0;
+    const owing = Number(stats.members_with_dues) || 0;
+    const waiting = activity.pending_visits + unreadChats;
+
+    const seats = total === 0
+        ? 'You have not added any seat yet.'
+        : free === 0 ? 'All <strong>' + total + '</strong> seats are filled.' : '<strong>' + free + '</strong> of ' + total + ' seats are free.';
+    const money = owing === 0
+        ? 'Nobody owes you money.'
+        : '<strong>' + owing + '</strong> ' + (owing === 1 ? 'member owes' : 'members owe') + ' you <strong>' + Ui.money(stats.total_outstanding) + '</strong>.';
+    const work = waiting === 0
+        ? 'No visit request or message is waiting.'
+        : '<strong>' + activity.pending_visits + '</strong> visit ' + (activity.pending_visits === 1 ? 'request' : 'requests') + ' and <strong>' + unreadChats + '</strong> unread ' + (unreadChats === 1 ? 'message' : 'messages') + '.';
+
+    return `
+        <div class="grid gap-3 md:grid-cols-3">
+            ${insightHtml('fa-bed', seats)}
+            ${insightHtml('fa-scale-balanced', money)}
+            ${insightHtml('fa-bell', work)}
+        </div>`;
+}
+
 // One of the six cards. The small ochre line on top is the accent of the theme.
 function statCardHtml(icon, label, value) {
     return `
@@ -187,6 +220,7 @@ function showDashboard(data, unreadChats) {
             <p class="text-sm text-ink-soft">Here is how your mess is doing.</p>
         </div>
         ${statusBannerHtml(data.mess.status)}
+        ${insightsHtml(stats, data.activity, unreadChats)}
         <div class="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">${cards}</div>
         ${occupancyHtml(stats)}
         <div class="grid gap-4 lg:grid-cols-2">

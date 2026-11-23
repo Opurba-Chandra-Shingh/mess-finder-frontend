@@ -19,7 +19,7 @@ pageBox.innerHTML = `
         <h2 class="text-lg font-semibold">Complaints</h2>
         <p class="text-sm text-ink-soft">Complaints that are not finished come first. Open one to answer it.</p>
     </div>
-    <div id="chips" class="hide-scrollbar flex gap-2 overflow-x-auto"></div>
+    <div id="chips" class="hide-scrollbar flex gap-5 overflow-x-auto"></div>
     <div id="list"></div>
     <div id="pagination"></div>`;
 
@@ -30,7 +30,7 @@ const pagesBox = document.getElementById('pagination');
 function renderChips() {
     chipsBox.innerHTML = [['', 'All'], ...statuses].map(([value, label]) => {
         const on = value === filter;
-        return `<button type="button" data-chip="${value}" class="h-9 shrink-0 rounded-full border px-3 text-sm font-medium ${on ? 'border-espresso bg-espresso text-white' : 'border-line bg-white hover:bg-page'}">${label}</button>`;
+        return `<button type="button" data-chip="${value}" class="h-9 shrink-0 border-b-2 px-0.5 text-sm font-medium ${on ? 'border-ochre text-ink' : 'border-transparent text-ink-soft hover:text-ink'}">${label}</button>`;
     }).join('');
 }
 

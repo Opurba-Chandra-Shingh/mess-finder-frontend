@@ -1,24 +1,28 @@
 // Visit requests of the manager: students who want to see the mess.
 // A pending request can be confirmed or rejected, a confirmed one can be marked completed.
-// The list comes from GET /manager/visits (pending first); the chips filter it on the page.
+// The list comes from GET /manager/visits (pending first), 15 on a page. The chips ask the server for one status
+// and show the number of requests of every status (the "counts" of the answer).
 
 Layout.start({ active: 'visits', title: 'Visit requests', roles: ['manager'] });
 
 const chipsBox = document.getElementById('chips');
 const listBox = document.getElementById('list');
+const pagesBox = document.getElementById('pagination');
 
 const smallButton = 'h-9 rounded-lg border border-line bg-white px-3 text-sm font-medium hover:bg-page';
 
-let visits = [];          // all the requests
+let visits = [];          // the requests of this page
+let counts = null;        // how many requests every status has
 let filter = '';          // '' (all) or a status
+let currentPage = 1;
 
 const filters = [['', 'All'], ['pending', 'Pending'], ['confirmed', 'Confirmed'], ['completed', 'Completed'], ['rejected', 'Rejected'], ['cancelled', 'Cancelled']];
 
 function renderChips() {
     chipsBox.innerHTML = filters.map(([value, label]) => {
-        const count = value === '' ? visits.length : visits.filter((visit) => visit.status === value).length;
+        const count = counts === null ? '' : value === '' ? counts.all : counts[value];
         const on = value === filter;
-        return `<button type="button" data-chip="${value}" class="h-9 shrink-0 rounded-full border px-3 text-sm font-medium ${on ? 'border-espresso bg-espresso text-white' : 'border-line bg-white hover:bg-page'}">${label} <span class="${on ? 'text-white/70' : 'text-ink-soft'}">${count}</span></button>`;
+        return `<button type="button" data-chip="${value}" class="h-9 shrink-0 border-b-2 px-0.5 text-sm font-medium ${on ? 'border-ochre text-ink' : 'border-transparent text-ink-soft hover:text-ink'}">${label} <span class="text-ink-soft">${count}</span></button>`;
     }).join('');
 }
 
@@ -50,8 +54,8 @@ function rowHtml(visit) {
 
 function renderList() {
     renderChips();
-    const shown = filter === '' ? visits : visits.filter((visit) => visit.status === filter);
-    if (visits.length === 0) {
+    const shown = visits;
+    if (counts.all === 0) {
         listBox.innerHTML = Ui.empty({ icon: 'fa-regular fa-calendar-check', title: 'No visit requests', text: 'When a student asks to visit your mess, the request will be here.' });
         return;
     }
@@ -77,10 +81,20 @@ function renderList() {
 async function loadVisits() {
     listBox.innerHTML = Ui.skeleton(4, 'h-14');
     try {
-        visits = await Api.get('/manager/visits');
+        const answer = await Api.get('/manager/visits', { status: filter, page: currentPage, limit: 15 });
+        // the last page may be gone after an answer (for example the only request of the page was answered)
+        if (answer.data.length === 0 && currentPage > 1) {
+            currentPage = Math.max(1, answer.total_pages);
+            loadVisits();
+            return;
+        }
+        visits = answer.data;
+        counts = answer.counts;
         renderList();
+        Ui.renderPagination(pagesBox, answer.page, answer.total_pages, (page) => { currentPage = page; loadVisits(); });
     } catch (error) {
         chipsBox.innerHTML = '';
+        pagesBox.innerHTML = '';
         if (error.status === 404) {
             // no mess yet
             listBox.innerHTML = Ui.empty({
@@ -100,7 +114,8 @@ chipsBox.addEventListener('click', (event) => {
     const chip = event.target.closest('[data-chip]');
     if (!chip) return;
     filter = chip.dataset.chip;
-    renderList();
+    currentPage = 1;
+    loadVisits();
 });
 
 // confirm, reject (after a question) and complete

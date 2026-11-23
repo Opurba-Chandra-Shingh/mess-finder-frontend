@@ -7,17 +7,10 @@ const topMesses = document.getElementById('top-messes');
 
 // ---------- the search bar ----------
 
-async function fillSearchLists() {
-    try {
-        const [universities, areas] = await Promise.all([
-            Api.get('/reference/universities'),
-            Api.get('/reference/areas'),
-        ]);
-        Ui.fillSelect(document.getElementById('search-university'), universities, 'university_id', (u) => u.short_name, 'Any university');
-        Ui.fillSelect(document.getElementById('search-area'), areas, 'area_id', (a) => a.area_name, 'Any area');
-    } catch (error) {
-        // the lists stay empty, the search still works without them
-    }
+// there can be thousands of universities and areas, so they are searched, not listed
+function fillSearchLists() {
+    Ui.picker(document.getElementById('search-university'), { path: '/reference/universities', idKey: 'university_id', labelOf: (u) => u.short_name, anyLabel: 'Any university' });
+    Ui.picker(document.getElementById('search-area'), { path: '/reference/areas', idKey: 'area_id', labelOf: (a) => a.area_name, anyLabel: 'Any area' });
 }
 
 // The search goes to the Browse page with the chosen filters in the address

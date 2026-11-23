@@ -97,6 +97,7 @@ async function savePost(event) {
     try {
         await Api.post('/manager/posts', body);
         Ui.toast('Your post is on the Newsfeed');
+        postPage = 1;           // the new post is the first one
         await loadPage();
     } catch (error) {
         message.textContent = error.message;       // for example: the mess is not verified yet
@@ -128,15 +129,25 @@ function postHtml(post) {
         </article>`;
 }
 
+let postPage = 1;
+
 async function loadPosts() {
     const list = document.getElementById('post-list');
+    const pages = document.getElementById('post-pages');
     list.innerHTML = Ui.skeleton(2, 'h-32');
     try {
-        const posts = await Api.get('/manager/posts');
-        list.innerHTML = posts.length === 0
+        const answer = await Api.get('/manager/posts', { page: postPage, limit: 10 });
+        if (answer.data.length === 0 && postPage > 1) {      // the last page is gone (the posts changed)
+            postPage = Math.max(1, answer.total_pages);
+            loadPosts();
+            return;
+        }
+        list.innerHTML = answer.data.length === 0
             ? Ui.empty({ icon: 'fa-solid fa-bullhorn', title: 'No posts yet', text: 'Your vacancy posts will be listed here after you post.' })
-            : posts.map(postHtml).join('');
+            : answer.data.map(postHtml).join('');
+        Ui.renderPagination(pages, answer.page, answer.total_pages, (page) => { postPage = page; loadPosts(); });
     } catch (error) {
+        pages.innerHTML = '';
         list.innerHTML = '';
         list.appendChild(Ui.errorBanner(error.message, loadPosts));
     }
@@ -175,6 +186,7 @@ async function loadPage() {
             <section class="lg:col-span-3">
                 <h2 class="mb-3 font-semibold">My posts</h2>
                 <div id="post-list" class="space-y-3"></div>
+                <div id="post-pages" class="mt-4"></div>
             </section>
         </div>`;
     document.getElementById('post-form').addEventListener('submit', savePost);

@@ -47,11 +47,10 @@ function itemHtml(item) {
 function showControls(unread) {
     document.querySelectorAll('#tabs [data-filter]').forEach((tab) => {
         const on = tab.dataset.filter === filter;
-        tab.classList.toggle('border-espresso', on);
-        tab.classList.toggle('bg-espresso', on);
-        tab.classList.toggle('text-white', on);
-        tab.classList.toggle('border-line', !on);
-        tab.classList.toggle('bg-white', !on);
+        tab.classList.toggle('border-ochre', on);
+        tab.classList.toggle('text-ink', on);
+        tab.classList.toggle('border-transparent', !on);
+        tab.classList.toggle('text-ink-soft', !on);
     });
     unreadCount.textContent = `(${unread})`;
     unreadCount.classList.toggle('hidden', unread === 0);

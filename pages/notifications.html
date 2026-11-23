@@ -9,13 +9,13 @@
     <script src="../js/tailwind-config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Inter:wght@400;500;600&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <div id="page">
-        <div class="mx-auto max-w-2xl">
+        <div class="mx-auto max-w-3xl">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h1 class="text-xl font-semibold">Notifications</h1>
                 <button type="button" id="read-all" class="h-10 rounded-lg border border-line bg-white px-4 text-sm font-medium hover:bg-page disabled:cursor-not-allowed disabled:text-mute">
@@ -23,9 +23,9 @@
                 </button>
             </div>
 
-            <div id="tabs" class="mt-4 flex gap-2">
-                <button type="button" data-filter="all" class="h-10 rounded-full border px-4 text-sm font-medium">All</button>
-                <button type="button" data-filter="unread" class="h-10 rounded-full border px-4 text-sm font-medium">Unread <span id="unread-count" class="hidden"></span></button>
+            <div id="tabs" class="mt-4 flex gap-5">
+                <button type="button" data-filter="all" class="h-9 border-b-2 px-0.5 text-sm font-medium">All</button>
+                <button type="button" data-filter="unread" class="h-9 border-b-2 px-0.5 text-sm font-medium">Unread <span id="unread-count" class="hidden"></span></button>
             </div>
 
             <div id="list" class="mt-4 overflow-hidden rounded-xl border border-line bg-white"></div>

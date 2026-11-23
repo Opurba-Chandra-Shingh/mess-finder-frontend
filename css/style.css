@@ -1,7 +1,17 @@
 /* Small custom styles. Almost everything else is Tailwind classes in the HTML. */
 
+/* text is a little smaller on laptops (every Tailwind size follows it); phones keep 16px */
+@media (min-width: 768px) {
+    html { font-size: 14px; }
+}
+
+h1, h2, h3 {
+    font-family: 'Outfit', 'Inter', 'Hind Siliguri', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+}
+
 body {
-    background-color: #E2E1EB;
+    background-color: #F5F4F8;
     color: #322D27;
     font-family: 'Inter', 'Hind Siliguri', system-ui, sans-serif;
 }
@@ -14,7 +24,7 @@ body {
 
 /* the grey block shown while data is loading (no shimmer, as planned) */
 .skeleton {
-    background-color: #d6d4df;
+    background-color: #e9e7ee;
     border-radius: 0.5rem;
 }
 

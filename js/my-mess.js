@@ -145,8 +145,10 @@ async function loadPage() {
         const member = membership.membership;
         content.innerHTML = messCardHtml(member)
             + summaryHtml(dues, payments)
+            + '<div class="grid gap-4 lg:grid-cols-2 lg:items-start">'
             + sectionHtml('Monthly rent', duesTableHtml(dues.dues))
-            + sectionHtml('Your payments', paymentsHtml(payments));
+            + sectionHtml('Your payments', paymentsHtml(payments))
+            + '</div>';
         document.getElementById('chat-button').addEventListener('click', (event) => startChat(event.currentTarget, member.mess_id));
     } catch (error) {
         content.innerHTML = '';

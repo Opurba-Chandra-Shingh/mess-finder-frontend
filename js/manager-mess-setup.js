@@ -15,8 +15,6 @@ const primaryButton = 'h-10 rounded-lg bg-espresso px-5 text-sm font-medium text
 const secondaryButton = 'h-10 rounded-lg border border-line bg-white px-4 text-sm font-medium hover:bg-page';
 
 let mess = null;              // the mess of the manager (null until it is created)
-let areas = [];               // the lists for the form
-let universities = [];
 let facilities = [];
 
 let roomsData = null;         // the answer of GET /manager/rooms-seats
@@ -107,16 +105,12 @@ function checkboxHtml(name, label, checked) {
         </label>`;
 }
 
-// One row of "nearby universities": a university and the distance in km
+// One row of "nearby universities": a university and the distance in km.
+// The university is searched (see startUniversityPickers), so the select starts empty.
 function universityRowHtml(universityId, distance) {
-    const options = universities
-        .map((item) => `<option value="${item.university_id}" ${Number(universityId) === item.university_id ? 'selected' : ''}>${Ui.escape(item.short_name + ' - ' + item.name)}</option>`)
-        .join('');
     return `
         <div data-university-row class="flex items-center gap-2">
-            <select data-university-select aria-label="University" class="${inputClass}">
-                <option value="">Choose a university</option>${options}
-            </select>
+            <select data-university-select data-initial="${universityId || ''}" aria-label="University" class="${inputClass}"></select>
             <input data-university-distance type="number" min="0" max="100" step="0.1" value="${distance === undefined ? '' : Ui.escape(distance)}" placeholder="km" aria-label="Distance in km"
                 class="${inputClass} !w-24 shrink-0">
             <button type="button" data-remove-university class="h-11 w-10 shrink-0 rounded-lg text-ink-soft hover:bg-page" aria-label="Remove this university"><i class="fa-solid fa-xmark"></i></button>
@@ -126,9 +120,6 @@ function universityRowHtml(universityId, distance) {
 function infoFormHtml() {
     const m = mess || {};
     const chosenFacilities = (m.facilities || []).map((item) => item.facility_id);
-    const areaOptions = areas
-        .map((area) => `<option value="${area.area_id}" ${m.area_id === area.area_id ? 'selected' : ''}>${Ui.escape(area.area_name)}</option>`)
-        .join('');
     const facilityBoxes = facilities.map((item) => `
         <label class="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-line px-3 text-sm hover:bg-page">
             <input type="checkbox" name="facility" value="${item.facility_id}" ${chosenFacilities.includes(item.facility_id) ? 'checked' : ''} class="h-4 w-4 rounded border-line accent-espresso">
@@ -138,6 +129,8 @@ function infoFormHtml() {
 
     return `
         <form id="mess-form" class="space-y-5" novalidate>
+            <div class="grid gap-5 lg:grid-cols-2 lg:items-start">
+            <div class="space-y-5">
             <section class="space-y-4 rounded-xl border border-line bg-white p-5">
                 <h2 class="font-semibold">About the mess</h2>
                 ${fieldHtml({ name: 'mess_name', label: 'Mess name', value: m.mess_name, maxlength: 120, placeholder: 'For example: Rahman Boys Mess' })}
@@ -153,7 +146,7 @@ function infoFormHtml() {
                     </div>
                     <div>
                         <label for="field-area_id" class="mb-1 block text-sm font-medium">Area</label>
-                        <select id="field-area_id" name="area_id" class="${inputClass}"><option value="">Choose an area</option>${areaOptions}</select>
+                        <select id="field-area_id" name="area_id" class="${inputClass}"></select>
                         <p data-error-for="area_id" class="mt-1 text-xs text-red-600"></p>
                     </div>
                 </div>
@@ -163,6 +156,12 @@ function infoFormHtml() {
                 ${fieldHtml({ name: 'established_year', label: 'Started in <span class="font-normal text-ink-soft">(optional)</span>', value: m.established_year || '', type: 'number', placeholder: 'For example: 2018', extra: 'min="1950" max="' + new Date().getFullYear() + '"' })}
             </section>
 
+            <section class="space-y-4 rounded-xl border border-line bg-white p-5">
+                <h2 class="font-semibold">Facilities</h2>
+                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">${facilityBoxes}</div>
+            </section>
+            </div>
+            <div class="space-y-5">
             <section class="space-y-4 rounded-xl border border-line bg-white p-5">
                 <h2 class="font-semibold">Contact</h2>
                 <div class="grid gap-4 sm:grid-cols-2">
@@ -194,10 +193,6 @@ function infoFormHtml() {
                 <p class="-mt-2 text-xs text-ink-soft">To find the two numbers, open Google Maps, right click on your building and click the numbers that appear.</p>
             </section>
 
-            <section class="space-y-4 rounded-xl border border-line bg-white p-5">
-                <h2 class="font-semibold">Facilities</h2>
-                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">${facilityBoxes}</div>
-            </section>
 
             <section class="space-y-3 rounded-xl border border-line bg-white p-5">
                 <h2 class="font-semibold">Nearby universities</h2>
@@ -207,6 +202,9 @@ function infoFormHtml() {
                 <button type="button" id="add-university" class="${secondaryButton}"><i class="fa-solid fa-plus mr-1"></i>Add a university</button>
             </section>
 
+            </div>
+            </div>
+
             <p id="form-message" class="hidden text-sm text-red-700"></p>
             <div class="flex justify-end">
                 <button type="submit" class="${primaryButton}">${mess ? 'Save changes' : 'Create mess'}</button>
@@ -214,9 +212,23 @@ function infoFormHtml() {
         </form>`;
 }
 
+// Turns the select of every new row into a search box (and shows the university that was saved before)
+function startUniversityPickers() {
+    document.querySelectorAll('[data-university-select]:not([data-ready])').forEach((select) => {
+        Ui.picker(select, { path: '/reference/universities', idKey: 'university_id', labelOf: (u) => u.short_name + ' - ' + u.name, anyLabel: 'Choose a university', wrapperClass: 'min-w-0 flex-1' });
+        select.dataset.ready = '1';
+        if (select.dataset.initial) select.value = select.dataset.initial;
+    });
+}
+
 function renderInfoTab() {
     infoTab.innerHTML = infoFormHtml();
     const form = document.getElementById('mess-form');
+
+    // the area and the universities are searched (there can be thousands)
+    Ui.picker(form.elements.area_id, { path: '/reference/areas', idKey: 'area_id', labelOf: (a) => a.area_name, anyLabel: 'Choose an area' });
+    if (mess) form.elements.area_id.value = mess.area_id;
+    startUniversityPickers();
 
     // the meal cost is only asked when the mess serves meals
     form.elements.has_meal.addEventListener('change', () => {
@@ -225,6 +237,7 @@ function renderInfoTab() {
 
     document.getElementById('add-university').addEventListener('click', () => {
         document.getElementById('university-rows').insertAdjacentHTML('beforeend', universityRowHtml());
+        startUniversityPickers();
     });
     document.getElementById('university-rows').addEventListener('click', (event) => {
         const remove = event.target.closest('[data-remove-university]');
@@ -745,17 +758,13 @@ async function start() {
     infoTab.innerHTML = Ui.skeleton(3, 'h-40');
     try {
         // the mess answers 404 when it is not created yet, that is not an error for this page
-        const [areaList, universityList, facilityList, messAnswer] = await Promise.all([
-            Api.get('/reference/areas'),
-            Api.get('/reference/universities'),
+        const [facilityList, messAnswer] = await Promise.all([
             Api.get('/reference/facilities'),
             Api.get('/manager/mess').catch((error) => {
                 if (error.status === 404) return null;
                 throw error;
             }),
         ]);
-        areas = areaList;
-        universities = universityList;
         facilities = facilityList;
         mess = messAnswer;
     } catch (error) {

@@ -9,20 +9,21 @@
     <script src="../../js/tailwind-config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Inter:wght@400;500;600&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
     <div id="page">
-        <div class="mx-auto max-w-6xl space-y-4">
+        <div class="mx-auto max-w-[88rem] space-y-4">
             <div>
                 <h2 class="text-lg font-semibold">Visit requests</h2>
                 <p class="text-sm text-ink-soft">Students who want to come and see your mess. Confirm or reject a request, and mark it completed after the visit.</p>
             </div>
             <!-- filled by js/manager-visits.js -->
-            <div id="chips" class="hide-scrollbar flex gap-2 overflow-x-auto"></div>
+            <div id="chips" class="hide-scrollbar flex gap-5 overflow-x-auto"></div>
             <div id="list"></div>
+            <div id="pagination"></div>
         </div>
     </div>
 

@@ -10,11 +10,12 @@ tailwind.config = {
                 link: '#8a5a1f',                                      // text links (a darker ochre, easier to read)
                 ink: { DEFAULT: '#322D27', soft: '#7F7265' },         // main text and helper text
                 mute: '#AAAAAE',                                      // placeholder and disabled
-                line: '#cfcdd9',                                      // borders and dividers
-                page: '#E2E1EB',                                      // background of the pages
+                line: '#e4e2ea',                                      // borders and dividers
+                page: '#F5F4F8',                                      // background of the pages (almost white, close to the cards)
             },
             fontFamily: {
                 sans: ['Inter', '"Hind Siliguri"', 'system-ui', 'sans-serif'],
+                display: ['Outfit', 'Inter', '"Hind Siliguri"', 'sans-serif'],   // headings
             },
         },
     },

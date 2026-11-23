@@ -155,18 +155,15 @@ function clearFilters() {
     filtersChanged();
 }
 
-// ---------- the lists inside the filter (universities, areas, facilities) ----------
+// ---------- the lists inside the filter (universities and areas are searched, facilities are listed) ----------
 
 async function loadFilterLists() {
     try {
-        const [universities, areas, facilities] = await Promise.all([
-            Api.get('/reference/universities'),
-            Api.get('/reference/areas'),
-            Api.get('/reference/facilities'),
-        ]);
-        Ui.fillSelect(form.elements.university_id, universities, 'university_id', (u) => u.short_name, 'Any university');
-        Ui.fillSelect(nearSelect, universities, 'university_id', (u) => 'From ' + u.short_name, 'Not used');
-        Ui.fillSelect(form.elements.area_id, areas, 'area_id', (a) => a.area_name, 'Any area');
+        // there can be thousands of universities and areas, so they are searched, not listed
+        Ui.picker(form.elements.university_id, { path: '/reference/universities', idKey: 'university_id', labelOf: (u) => u.short_name, anyLabel: 'Any university' });
+        Ui.picker(nearSelect, { path: '/reference/universities', idKey: 'university_id', labelOf: (u) => 'From ' + u.short_name, anyLabel: 'Not used' });
+        Ui.picker(form.elements.area_id, { path: '/reference/areas', idKey: 'area_id', labelOf: (a) => a.area_name, anyLabel: 'Any area' });
+        const facilities = await Api.get('/reference/facilities');
         document.getElementById('facility-list').innerHTML = facilities
             .map((f) => `
                 <label class="flex items-center gap-2">

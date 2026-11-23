@@ -130,18 +130,11 @@ function render() {
     document.getElementById('logout-button').addEventListener('click', () => Auth.logout());
 }
 
-// the list of universities for the select (the chosen one is already in it)
-async function fillUniversities() {
+// the university is searched (there can be thousands); the chosen one is shown first
+function fillUniversities() {
     const select = document.getElementById('field-university_id');
-    try {
-        const universities = await Api.get('/reference/universities');
-        select.innerHTML = universities
-            .map((u) => `<option value="${u.university_id}">${Ui.escape(u.short_name)} - ${Ui.escape(u.name)}</option>`)
-            .join('');
-        select.value = me.profile.university_id;
-    } catch (error) {
-        // the select keeps the university of the student, which is enough to save the other fields
-    }
+    Ui.picker(select, { path: '/reference/universities', idKey: 'university_id', labelOf: (u) => u.short_name + ' - ' + u.name, anyLabel: 'Search your university' });
+    select.value = me.profile.university_id;
 }
 
 // ---------- save the details ----------

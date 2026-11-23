@@ -113,7 +113,7 @@ function renderChips() {
     ];
     chipsBox.innerHTML = chips.map(([value, label, count]) => {
         const on = value === filter;
-        return `<button type="button" data-chip="${value}" class="h-9 shrink-0 rounded-full border px-3 text-sm font-medium ${on ? 'border-espresso bg-espresso text-white' : 'border-line bg-white hover:bg-page'}">${label} <span class="${on ? 'text-white/70' : 'text-ink-soft'}">${count}</span></button>`;
+        return `<button type="button" data-chip="${value}" class="h-9 shrink-0 border-b-2 px-0.5 text-sm font-medium ${on ? 'border-ochre text-ink' : 'border-transparent text-ink-soft hover:text-ink'}">${label} <span class="text-ink-soft">${count}</span></button>`;
     }).join('');
 }
 
